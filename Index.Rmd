@@ -14,33 +14,22 @@ library(flexdashboard)
 ```{r paquetes, message = FALSE, warning = FALSE}
 # Paquete para manipulación de datos
 library(dplyr)
-
 # Paquete para manejo de datos vectoriales
 library(sf)
-
-# Paquetes para manejo de datos raster
-library(terra)
-
 # Paquete para mapas interactivos
 library(leaflet)
-
 #paquete para manejo de tablas
 library(DT)
-
 #Paquete para graficación
 library(ggplot2)
-
 library(plotly)
+#library(shiny)
+#library(shinydashboard)
+#library(shinyWidgets )
 
-library(shiny)
-library(shinydashboard)
-library(shinyWidgets )
-
-library(rgdal)
-
+#library(rgdal)
 library(leaflet.extras)
 library(leafem)
-
 library(graphics)
 library(tidyverse)
 library(RColorBrewer)
