@@ -1,0 +1,520 @@
+---
+title: "Patrimonio Cultural Ciudad de Limón"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+```{r setup, include = FALSE, message = FALSE, warning = FALSE}
+library(flexdashboard)
+```
+
+
+```{r paquetes, message = FALSE, warning = FALSE}
+# Paquete para manipulación de datos
+library(dplyr)
+
+# Paquete para manejo de datos vectoriales
+library(sf)
+
+# Paquetes para manejo de datos raster
+library(terra)
+
+# Paquete para mapas interactivos
+library(leaflet)
+
+#paquete para manejo de tablas
+library(DT)
+
+#Paquete para graficación
+library(ggplot2)
+
+library(plotly)
+
+library(shiny)
+library(shinydashboard)
+library(shinyWidgets )
+
+library(rgdal)
+
+library(leaflet.extras)
+library(leafem)
+
+library(graphics)
+library(tidyverse)
+library(RColorBrewer)
+
+
+
+
+```
+
+```{r datos, message = FALSE, warning=FALSE}
+#Lectura datos zonas
+zonas <-
+  st_read("https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/capas/zonas_delimitadas.geojson",
+    quiet = TRUE
+  )
+
+# Transformación del CRS del objeto zonas
+zonas <-
+  zonas %>%
+  st_transform(4326)
+
+#Lectura datos cuadrantes
+cuadrantes <-
+  st_read("https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/capas/cuadrantes.geojson",
+    quiet = TRUE
+  )
+
+# Transformación del CRS de cuadrantes 
+cuadrantes <-
+  cuadrantes %>%
+  st_transform(4326)
+
+#Lectura datos recursos materiales  
+recursos_materiales <-
+  st_read("https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/capas/datos_mapa_material.geojson",
+    quiet = TRUE
+  )
+
+# Transformación del CRS de recursos patrimoniales
+
+recursos_materiales <-
+  recursos_materiales %>%
+  st_transform(4326)
+
+
+#Lectura datos recursos inmateriales  
+recursos_inmateriales <-
+  st_read("https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/capas/datos_mapa_inmaterial.geojson",
+    quiet = TRUE
+  )
+
+# Transformación del CRS de recursos patrimoniales
+
+recursos_inmateriales <-
+  recursos_inmateriales %>%
+  st_transform(4326)
+
+
+#Lectura patrimonio_material
+
+patrimonio_material <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/Proyecto_1_documento/master/Tablas/patrimonio_material_1.csv",
+   quiet = TRUE
+  )
+
+#lectura riesgo material 
+
+riesgo_material <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/riesgo_material.csv",
+   quiet = TRUE
+  )
+
+#lectura riesgo inmaterial 
+
+riesgo_inmaterial <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/riesgo_inmaterial.csv",
+   quiet = TRUE
+  )
+
+#lectura patrimonio_inmaterial
+patrimonio_inmaterial <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/Proyecto_1_documento/master/Tablas/patrimonio_inmaterial_1.csv",
+   quiet = TRUE
+  )
+
+#lectura ambitos 
+
+ambitos <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/ambitos.csv",
+   quiet = TRUE
+  )
+
+#lectura alcance 
+
+alcance <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/alcance.csv",
+   quiet = TRUE
+  )
+
+
+#lectura grupos sociales 
+
+grupos_sociales <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/grupos_sociales.csv",
+   quiet = TRUE
+  )
+
+
+```
+
+
+Patrimonio tangible 
+=======================================================================
+
+Row {data-height=925}
+-----------------------------------------------------------------------
+
+### Mapa Centro histórico y primer ensanche de la Ciudad de Limón
+```{r mapa, message = FALSE, warning = FALSE}
+
+#color
+
+colores <- c('red', 'orange', 'yellow')
+
+c_zona <- levels(as.factor(zonas$id_zona))
+
+paleta <- colorFactor(palette = colores, domain = c_zona)
+
+# Mapa leaflet básico con capas de zonas y recursos patrimoniales 
+leaflet() %>%
+  addTiles() %>%
+  setView(-83.0292, 9.9952, 15) %>%
+  
+  addProviderTiles(
+    providers$CartoDB.Positron, group = "carto_DB") %>%
+  addProviderTiles(
+    providers$Esri.WorldImagery, group = "Esri") %>%
+  
+ addPolygons(
+    data = zonas,
+    color = ~paleta(id_zona),
+    smoothFactor = 0.7,
+    popup = ~nombre,
+    label= ~id_zona,
+    stroke = TRUE,
+    weight = 2.0,
+    group = "Zonas delimitadas"
+  )  %>%
+  
+  addPolygons(
+    data = cuadrantes,
+    color = "black",
+    smoothFactor = 0.3,
+    stroke = TRUE,
+    weight = 1.0,
+    group = "Cuadrantes"
+  ) %>%
+  
+  addCircleMarkers(
+    data = recursos_materiales,
+    stroke = F,
+    radius = 4,
+    popup = paste0("<strong>Recurso: </strong>",
+                       recursos_materiales$denominacion,
+                       "<br>",
+                       "<strong>Subcategoría: </strong>",
+                       recursos_materiales$subcategoria,
+                       "<br>",
+                       "<strong>Estado: </strong>",
+                       recursos_materiales$estado,
+                       "<br>",
+                       "<img src='",recursos_materiales$registro_fotografico,"","'width='200'/>",
+                       "<br>",
+                       "<a href='",recursos_materiales$ficha,"", "'>Ficha</a>"),
+    label = ~codigo,
+    fillColor = 'orange',
+    fillOpacity = 1,
+    group = "Recursos patrimoniales"
+  )%>%
+  
+  addLayersControl(
+    baseGroups = c("Esri","Carto_DB"),
+    overlayGroups = c("Zonas delimitadas","Cuadrantes", "Recursos patrimoniales"),
+    options = layersControlOptions(collapsed = T)
+  )
+  
+
+```
+
+
+### Recursos del patrimonio material
+
+```{r tabla patrimonio material, message = FALSE, warning = FALSE}
+patrimonio_material%>%
+  select(id_recurso, denominacion, subcategoria, estado_conservacion)%>%
+  datatable(patrimonio_material, options = list(language = list(url = '//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json'), pageLength = 15))
+```
+
+roW {data-height=75}
+-----------------------------------------------------------------------
+
+### Enlace a página interactiva.
+
+Explora los datos de forma interactiva en https://mauguemu.shinyapps.io/Recursos_patrimonio_material/
+
+```{r enlace, message = FALSE, warning = FALSE}
+
+
+```
+
+Patrimonio tangible en datos
+=======================================================================
+
+row 
+-----------------------------------------------------------------------
+### Situación legal de los recursos del patrimonio material 
+```{r grafico declaracion patrimonial, message=FALSE, warning=FALSE}
+patrimonio_material %>%
+  group_by(declaratoria) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(declaratoria))  %>%
+  plot_ly(x = ~ declaratoria,
+          y = ~ suma_registros,
+          type="bar", color = ~ declaratoria  ) %>%
+  layout(title = "Recursos con figura de protección legal",
+         #xaxis = list(title = "Existencia de una declaratoria"),
+         yaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+```
+
+### Clasificación de los recursos según subcategorías de los dominios culturales
+
+```{r grafico dominios culturales y subcategorias, message=FALSE, warning=FALSE}
+patrimonio_material %>%
+  group_by(subcategoria) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(subcategoria))  %>%
+  plot_ly(x = ~ subcategoria,
+          y = ~ suma_registros,
+          type="bar", color = ~ subcategoria) %>%
+  layout(title = "Clasificación de los recursos según subcategorías",
+         xaxis = list(title = "Subcategoría según dominios culturales"),
+         yaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
+
+### Distribución de los recursos según estado de conservación
+
+```{r grafico 3 estado de conservacion, message=FALSE, warning=FALSE}
+patrimonio_material %>%
+  group_by(estado_conservacion) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(estado_conservacion))  %>%
+  plot_ly(x = ~ estado_conservacion,
+          y = ~ suma_registros,
+          type="bar",color = ~ estado_conservacion) %>%
+  layout(title = "Estado de conservación de los recursos del patrimonio material",
+         xaxis = list(title = "Estado de conservación"),
+         yaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
+
+row 
+-----------------------------------------------------------------------
+
+### Riesgos y amenazas del patrimonio material
+
+```{r grafico 4 riesgos, message=FALSE, warning=FALSE}
+riesgo_material %>%
+  group_by(descripcion) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(descripcion))  %>%
+  plot_ly(y = ~ descripcion,
+          x = ~ suma_registros,
+          type="bar",orientation = 'h',color = ~ descripcion) %>%
+  layout(title = "Riesgos de los recursos del patrimonio material",
+         yaxis = list(title = "Riesgos y amenazas enfrentadas"),
+         xaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
+
+
+
+Patrimonio intangible 
+=======================================================================
+
+row {data-height=925}
+-----------------------------------------------------------------------
+
+### Mapa Centro histórico y primer ensanche de la Ciudad de Limón
+```{r mapa_1, message = FALSE, warning = FALSE}
+
+
+# Mapa leaflet básico con capas de zonas y recursos patrimoniales 
+leaflet() %>%
+  addTiles() %>%
+  setView(-83.0292, 9.9952, 15) %>%
+  
+  addProviderTiles(
+    providers$CartoDB.Positron, group = "carto_DB") %>%
+  addProviderTiles(
+    providers$Esri.WorldImagery, group = "Esri") %>%
+  
+  
+  
+  addPolygons(
+    data = zonas,
+    color = ~paleta(id_zona),
+    smoothFactor = 0.7,
+    popup = ~nombre,
+    label= ~id_zona,
+    stroke = TRUE,
+    weight = 2.0,
+    group = "Zonas delimitadas"
+  )  %>%
+  
+  addPolygons(
+    data = cuadrantes,
+    color = "black",
+    smoothFactor = 0.3,
+    stroke = TRUE,
+    weight = 1.0,
+    group = "Cuadrantes"
+  ) %>%
+  
+  addCircleMarkers(
+    data = recursos_inmateriales,
+    stroke = F,
+    radius = 4,
+    popup = paste0("<strong>Recurso: </strong>",
+                       recursos_inmateriales$denominacion,
+                       "<br>",
+                       "<strong>Subcategoría: </strong>",
+                       recursos_inmateriales$subcategoria,
+                       "<br>",
+                       "<strong>Estado: </strong>",
+                       recursos_inmateriales$estado,
+                       "<br>",
+                       "<img src='",recursos_inmateriales$registro_fotografico,"","'width='200'/>",
+                       "<br>",
+                       "<a href='",recursos_inmateriales$ficha,"", "'>Ficha</a>"),
+    label = ~codigo,
+    fillColor = 'orange',
+    fillOpacity = 1,
+    group = "Recursos patrimoniales"
+  )%>%
+  
+  addLayersControl(
+    baseGroups = c("Esri","Carto_DB"),
+    overlayGroups = c("Zonas delimitadas","Cuadrantes", "Recursos patrimoniales"),
+    options = layersControlOptions(collapsed = T)
+  )
+  
+
+```
+
+
+
+### Recursos del patrimonio inmaterial
+
+```{r patrimonio inmaterial, message=FALSE, warning=FALSE}
+patrimonio_inmaterial%>%
+  select(Id_recurso, Denominacion, Subcategoria, Alcance)%>%
+  datatable(patrimonio_inmaterial, options = list(language = list(url = '//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json'), pageLength = 15))
+```
+
+row {data-height=75}
+-----------------------------------------------------------------------
+
+### Enlace a página interactiva.
+
+Explora los datos de forma interactiva en https://mauguemu.shinyapps.io/Recursos_patrimonio_inmaterial/
+
+```{r enlace2, message = FALSE, warning = FALSE}
+
+
+
+```
+
+Patrimonio intangible en datos
+=======================================================================
+
+row
+-----------------------------------------------------------------------
+### Distribución de los recursos según estado de conservación
+
+```{r grafico Grupo social, message=FALSE, warning=FALSE}
+grupos_sociales %>%
+  group_by(grupo_social) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(grupo_social))  %>%
+  plot_ly(x = ~ grupo_social,
+          y = ~ suma_registros,
+          type="bar",color = ~ grupo_social) %>%
+  layout(title = "Grupos sociales vinculados al patrimonio inmaterial",
+         xaxis = list(title = "Grupos sociales"),
+         yaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
+
+### Distribución de los recursos según alcance
+
+```{r grafico Alcance, message=FALSE, warning=FALSE}
+alcance %>%
+  group_by(alcance) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(alcance))  %>%
+  plot_ly(x = ~ alcance,
+          y = ~ suma_registros,
+          type="bar",color = ~ alcance) %>%
+  layout(title = "Alcance de los recursos del patrimonio inmaterial",
+         xaxis = list(title = "Alcance"),
+         yaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
+
+### Ámbitos del Patrimonio cultural
+
+```{r grafico ambito, message=FALSE, warning=FALSE}
+ambitos %>%
+  group_by(ambito_patrimonio) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(ambito_patrimonio))  %>%
+  plot_ly(x = ~ ambito_patrimonio,
+          y = ~ suma_registros,
+          type="bar",color = ~ ambito_patrimonio) %>%
+  layout(title = "Ámbitos del patrimonio cultural",
+         xaxis = list(title = "Ámbitos"),
+         yaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
+
+row
+-----------------------------------------------------------------------
+### Riesgos y amenazas del patrimonio inmaterial
+
+```{r grafico riesgos, message=FALSE, warning=FALSE}
+riesgo_inmaterial %>%
+  group_by(descripcion) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(descripcion))  %>%
+  plot_ly(y = ~ descripcion,
+          x = ~ suma_registros,
+          type="bar",orientation = 'h',color = ~ descripcion) %>%
+  layout(title = "Riesgos de los recursos del patrimonio inmaterial",
+         yaxis = list(title = "Riesgos y amenazas enfrentadas"),
+         xaxis = list(title = "Cantidad de recursos"))%>%
+   config(locale = "es")
+
+
+
+```
