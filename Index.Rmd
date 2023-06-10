@@ -4,7 +4,16 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: fill
+    font-family: Poppins
 ---
+
+<style type="text/css">
+
+.chart-title {  /* chart_title  */
+   font-size:15px;color :#17376B;
+   
+
+</style>
 
 ```{r setup, include = FALSE, message = FALSE, warning = FALSE}
 library(flexdashboard)
@@ -23,11 +32,6 @@ library(DT)
 #Paquete para graficación
 library(ggplot2)
 library(plotly)
-#library(shiny)
-#library(shinydashboard)
-#library(shinyWidgets )
-
-#library(rgdal)
 library(leaflet.extras)
 library(leafem)
 library(graphics)
@@ -96,6 +100,7 @@ patrimonio_material <-
    quiet = TRUE
   )
 
+
 #lectura riesgo material 
 
 riesgo_material <-
@@ -144,17 +149,81 @@ grupos_sociales <-
    quiet = TRUE
   )
 
+#lectura actores sociales material 
+
+actores_m <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/socios_material.csv",
+   quiet = TRUE
+  )
+
+#lectura actores sociales inmaterial 
+
+actores_i <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/socios_inmaterial.csv",
+   quiet = TRUE
+  )
+
+#lectura acciones de intervención
+
+acciones <-
+  st_read(
+    "/vsicurl/https://raw.githubusercontent.com/mauguemu/prueba_tablero/master/Datos/tablas/acciones.csv",
+   quiet = TRUE
+  )
 
 ```
 
+Heritage Puerto Limón
+=======================================================================
 
-Patrimonio tangible 
+Row 
+-----------------------------------------------------------------------
+### **Proyecto de extensión**
+
+<p align ='center'>  
+
+
+<b style ='font-size:15px;color :#17376B;'> Heritage Puerto Limón </b> es un proyecto de extensión desarrollado por el Instituto Tecnológico de Costa Rica en la Región Caribe, con la colaboración de la Escuela de Arquitectura y Urbanismo, la escuela de Administración de Empresas, la escuela de Diseño Industrial, la Municipalidad de Limón y la sociedad civil. 
+
+<BR>
+El objetivo del proyecto es mejorar la gestión de los recursos patrimoniales tangibles e intangibles en el casco histórico y primer ensanche de la ciudad de Limón por parte de una Red de Colaboradores. El mismo busca el aprovechamiento de oportunidades para la generación de desarrollo endógeno por medio de la puesta en valor de los recursos patrimoniales de Puerto Limón. 
+
+<BR>
+Este sitio web presenta al público en general algunos de los resultados del proyecto y busca difundir y poner al alcance de la comunidad nacional los recursos patrimoniales del territorio. Entre otras cosas, podrán encontrar: 
+
+*<b style ='font-size:15px;color :#F7B60C;'> Patrimonio material:</b>  Listado de los recursos del patrimonio material identificados en la zona de estudio así como el estado actual de los mismos
+
+
+*<b style ='font-size:15px; color :#F77F10;'> Patrimonio inmaterial:</b>  Listado de los recursos del patrimonio inmaterial identificados en la zona y una serie de caacterísticas de interés para estos. 
+
+*<b style ='font-size:15px;color :#169A77;'> Acciones y actores para la gestión:</b>  una serie de estrategias para la gestión de los recursos generadas en conjunto por la Red de colaboradores y el equipo de extensionistas TEC
+
+<BR>
+<b style ='font-size:15px;color :#17376B;'>Equipo de extensionistas</b> Dr. Arq. David Porras Alfaro, coordinador; Dra. Arq. Kenia García Baltodano; Mstr. Arq. Jose Pablo Bulgarelli Bolaños; M.Sc. Arq. Ileana Hernández Salazar; MDU. Arq. Mauricio Guevara Murillo; MGP. DI. María del Carmen Valverde Solano; y MAE. Marco William MArtínez Mora.  <BR>
+ 
+</p>
+
+
+
+### Créditos 
+
+<p align ='center'>
+![ ](https://github.com/mauguemu/prueba_tablero/blob/master/Datos/Imagenes/logo%20%20TEC-01.jpg?raw=true) </p>
+
+Row 
+-----------------------------------------------------------------------
+### .
+![ ](https://github.com/mauguemu/prueba_tablero/blob/master/Datos/Imagenes/gif_dahsboard.png?raw=true)
+
+Patrimonio Material 
 =======================================================================
 
 Row {data-height=925}
 -----------------------------------------------------------------------
 
-### Mapa Centro histórico y primer ensanche de la Ciudad de Limón
+### **Mapa Centro histórico y primer ensanche de la Ciudad de Limón**
 ```{r mapa, message = FALSE, warning = FALSE}
 
 #color
@@ -227,7 +296,7 @@ leaflet() %>%
 ```
 
 
-### Recursos del patrimonio material
+### **Recursos del patrimonio material**
 
 ```{r tabla patrimonio material, message = FALSE, warning = FALSE}
 patrimonio_material%>%
@@ -242,17 +311,14 @@ roW {data-height=75}
 
 Explora los datos de forma interactiva en https://mauguemu.shinyapps.io/Recursos_patrimonio_material/
 
-```{r enlace, message = FALSE, warning = FALSE}
 
 
-```
-
-Patrimonio tangible en datos
+Patrimonio material en datos
 =======================================================================
 
 row 
 -----------------------------------------------------------------------
-### Situación legal de los recursos del patrimonio material 
+### **Situación legal de los recursos del patrimonio material** 
 ```{r grafico declaracion patrimonial, message=FALSE, warning=FALSE}
 patrimonio_material %>%
   group_by(declaratoria) %>%
@@ -260,14 +326,14 @@ patrimonio_material %>%
   filter(!is.na(declaratoria))  %>%
   plot_ly(x = ~ declaratoria,
           y = ~ suma_registros,
-          type="bar", color = ~ declaratoria  ) %>%
-  layout(title = "Recursos con figura de protección legal",
+          type="bar", color = ~ declaratoria, color_continuous_scale = 'viridis'  ) %>%
+  layout(
          #xaxis = list(title = "Existencia de una declaratoria"),
          yaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
 ```
 
-### Clasificación de los recursos según subcategorías de los dominios culturales
+### **Clasificación de los recursos según subcategorías de los dominios culturales**
 
 ```{r grafico dominios culturales y subcategorias, message=FALSE, warning=FALSE}
 patrimonio_material %>%
@@ -277,7 +343,7 @@ patrimonio_material %>%
   plot_ly(x = ~ subcategoria,
           y = ~ suma_registros,
           type="bar", color = ~ subcategoria) %>%
-  layout(title = "Clasificación de los recursos según subcategorías",
+  layout(
          xaxis = list(title = "Subcategoría según dominios culturales"),
          yaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -286,7 +352,7 @@ patrimonio_material %>%
 
 ```
 
-### Distribución de los recursos según estado de conservación
+### **Distribución de los recursos según estado de conservación**
 
 ```{r grafico 3 estado de conservacion, message=FALSE, warning=FALSE}
 patrimonio_material %>%
@@ -296,7 +362,7 @@ patrimonio_material %>%
   plot_ly(x = ~ estado_conservacion,
           y = ~ suma_registros,
           type="bar",color = ~ estado_conservacion) %>%
-  layout(title = "Estado de conservación de los recursos del patrimonio material",
+  layout(
          xaxis = list(title = "Estado de conservación"),
          yaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -308,7 +374,7 @@ patrimonio_material %>%
 row 
 -----------------------------------------------------------------------
 
-### Riesgos y amenazas del patrimonio material
+### **Riesgos y amenazas del patrimonio materia**
 
 ```{r grafico 4 riesgos, message=FALSE, warning=FALSE}
 riesgo_material %>%
@@ -318,7 +384,7 @@ riesgo_material %>%
   plot_ly(y = ~ descripcion,
           x = ~ suma_registros,
           type="bar",orientation = 'h',color = ~ descripcion) %>%
-  layout(title = "Riesgos de los recursos del patrimonio material",
+  layout(
          yaxis = list(title = "Riesgos y amenazas enfrentadas"),
          xaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -329,13 +395,13 @@ riesgo_material %>%
 
 
 
-Patrimonio intangible 
+Patrimonio inmaterial 
 =======================================================================
 
 row {data-height=925}
 -----------------------------------------------------------------------
 
-### Mapa Centro histórico y primer ensanche de la Ciudad de Limón
+### **Mapa Centro histórico y primer ensanche de la Ciudad de Limón**
 ```{r mapa_1, message = FALSE, warning = FALSE}
 
 
@@ -381,8 +447,8 @@ leaflet() %>%
                        "<strong>Subcategoría: </strong>",
                        recursos_inmateriales$subcategoria,
                        "<br>",
-                       "<strong>Estado: </strong>",
-                       recursos_inmateriales$estado,
+                       "<strong>Periodicidad: </strong>",
+                       recursos_inmateriales$periodicidad,
                        "<br>",
                        "<img src='",recursos_inmateriales$registro_fotografico,"","'width='200'/>",
                        "<br>",
@@ -404,7 +470,7 @@ leaflet() %>%
 
 
 
-### Recursos del patrimonio inmaterial
+### **Recursos del patrimonio inmaterial**
 
 ```{r patrimonio inmaterial, message=FALSE, warning=FALSE}
 patrimonio_inmaterial%>%
@@ -419,18 +485,14 @@ row {data-height=75}
 
 Explora los datos de forma interactiva en https://mauguemu.shinyapps.io/Recursos_patrimonio_inmaterial/
 
-```{r enlace2, message = FALSE, warning = FALSE}
 
 
-
-```
-
-Patrimonio intangible en datos
+Patrimonio inmaterial en datos
 =======================================================================
 
-row
+row 
 -----------------------------------------------------------------------
-### Distribución de los recursos según estado de conservación
+### **Distribución de los recursos según grupos sociales vinculados**
 
 ```{r grafico Grupo social, message=FALSE, warning=FALSE}
 grupos_sociales %>%
@@ -440,7 +502,7 @@ grupos_sociales %>%
   plot_ly(x = ~ grupo_social,
           y = ~ suma_registros,
           type="bar",color = ~ grupo_social) %>%
-  layout(title = "Grupos sociales vinculados al patrimonio inmaterial",
+  layout(
          xaxis = list(title = "Grupos sociales"),
          yaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -449,7 +511,7 @@ grupos_sociales %>%
 
 ```
 
-### Distribución de los recursos según alcance
+### **Distribución de los recursos según alcance del patrimonio inmaterial**
 
 ```{r grafico Alcance, message=FALSE, warning=FALSE}
 alcance %>%
@@ -459,7 +521,7 @@ alcance %>%
   plot_ly(x = ~ alcance,
           y = ~ suma_registros,
           type="bar",color = ~ alcance) %>%
-  layout(title = "Alcance de los recursos del patrimonio inmaterial",
+  layout(
          xaxis = list(title = "Alcance"),
          yaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -468,7 +530,7 @@ alcance %>%
 
 ```
 
-### Ámbitos del Patrimonio cultural
+### **Ámbitos del Patrimonio cultural**
 
 ```{r grafico ambito, message=FALSE, warning=FALSE}
 ambitos %>%
@@ -478,7 +540,7 @@ ambitos %>%
   plot_ly(x = ~ ambito_patrimonio,
           y = ~ suma_registros,
           type="bar",color = ~ ambito_patrimonio) %>%
-  layout(title = "Ámbitos del patrimonio cultural",
+  layout(
          xaxis = list(title = "Ámbitos"),
          yaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -489,7 +551,7 @@ ambitos %>%
 
 row
 -----------------------------------------------------------------------
-### Riesgos y amenazas del patrimonio inmaterial
+### **Riesgos y amenazas del patrimonio inmaterial**
 
 ```{r grafico riesgos, message=FALSE, warning=FALSE}
 riesgo_inmaterial %>%
@@ -499,7 +561,7 @@ riesgo_inmaterial %>%
   plot_ly(y = ~ descripcion,
           x = ~ suma_registros,
           type="bar",orientation = 'h',color = ~ descripcion) %>%
-  layout(title = "Riesgos de los recursos del patrimonio inmaterial",
+  layout(
          yaxis = list(title = "Riesgos y amenazas enfrentadas"),
          xaxis = list(title = "Cantidad de recursos"))%>%
    config(locale = "es")
@@ -507,3 +569,63 @@ riesgo_inmaterial %>%
 
 
 ```
+
+Actores y acciones para la gestión
+=======================================================================
+
+row {data-height=550}
+-----------------------------------------------------------------------
+### **Distribución de los actores según recursos del patrimonio material**
+
+```{r grafico actores m, message=FALSE, warning=FALSE}
+
+actores_m %>%
+  group_by(subcategoria) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(subcategoria))  %>%
+  plot_ly(x = ~ subcategoria,
+          y = ~ suma_registros,
+          type="scatter",color = ~ subcategoria, size = 2) %>%
+  layout(
+         xaxis = list(title = "Subcategoría del dominio"),
+         yaxis = list(title = "Cantidad de actores"))%>%
+   config(locale = "es")
+
+
+
+```
+
+### **Distribución de los actores según recursos del patrimonio inmaterial**
+
+```{r grafico actores i, message=FALSE, warning=FALSE}
+
+actores_i %>%
+  group_by(subcategoria) %>%
+  summarize(suma_registros = n()) %>%
+  filter(!is.na(subcategoria))  %>%
+  plot_ly(x = ~ subcategoria,
+          y = ~ suma_registros,
+          type="scatter",color = ~ subcategoria, size = 1.5) %>%
+  layout(
+         xaxis = list(title = "Subcategoría del dominio"),
+         yaxis = list(title = "Cantidad de actores"))%>%
+   config(locale = "es")
+
+
+```
+
+
+
+row {data-height=450}
+-----------------------------------------------------------------------
+### **Acciones e iniciativas de gestión y puesta en valor**
+
+```{r tabla acciones, message=FALSE, warning=FALSE}
+
+acciones%>%
+  select(nombre,descripcion, categoria, area_accion)%>%
+  datatable(acciones, options = list(language = list(url = '//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json'), pageLength = 4))
+
+
+```
+
