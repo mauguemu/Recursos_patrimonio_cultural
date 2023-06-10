@@ -185,7 +185,7 @@ Row
 <p align ='center'>  
 
 
-<b style ='font-size:15px;color :#17376B;'> Heritage Puerto Limón </b> es un proyecto de extensión desarrollado por el Instituto Tecnológico de Costa Rica en la Región Caribe, con la colaboración de la Escuela de Arquitectura y Urbanismo, la escuela de Administración de Empresas, la escuela de Diseño Industrial, la Municipalidad de Limón y la sociedad civil. 
+<b style ='font-size:15px;color :#17376B;'> Heritage Puerto Limón </b> es un proyecto de extensión desarrollado por el Instituto Tecnológico de Costa Rica en la Región Caribe, con la colaboración de la Escuela de Arquitectura y Urbanismo, la Escuela de Administración de Empresas, la Escuela de Diseño Industrial, la Municipalidad de Limón y la sociedad civil. 
 
 <BR>
 El objetivo del proyecto es mejorar la gestión de los recursos patrimoniales tangibles e intangibles en el casco histórico y primer ensanche de la ciudad de Limón por parte de una Red de Colaboradores. El mismo busca el aprovechamiento de oportunidades para la generación de desarrollo endógeno por medio de la puesta en valor de los recursos patrimoniales de Puerto Limón. 
